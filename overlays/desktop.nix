@@ -1,13 +1,18 @@
 self: super: {
   desktop = self.buildEnv {
     name = "desktop";
-    paths = with self.pkgs; [
+    paths = with self.pkgs; 
+     let        
+       dotfiles = import ../dotfiles pkgs.pkgs;
+     in [
+      dotfiles
       xorg.xev
       xorg.xbacklight
+      feh
       dwm
       dmenu
       slstatus
-      nnn
+      lf
       picom
       st
       dvtm
@@ -22,6 +27,8 @@ self: super: {
       neovim
       htop
       gitAndTools.gitFull
+      zsh-autosuggestions
+      zsh-syntax-highlighting
     ];
   };
 }
