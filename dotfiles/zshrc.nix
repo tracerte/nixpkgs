@@ -2,17 +2,26 @@ pkgs :
 let
   syntax-highlighting = "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh";
   autosuggestions = "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh";
+  powerlevel10k = "${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
 in
   pkgs.writeText "zshrc" ''
-   
-# Enable colors and change prompt:
-autoload -U colors && colors
-PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$reset_color%}$%b "
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block, everything else may go below.
+if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
+  source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
+fi
 
 # History in cache directory:
 HISTSIZE=10000
 SAVEHIST=10000
-HISTFILE=~/.cache/zsh/history
+HISTFILE=~/.zsh_history
+setopt appendhistory
+
+# Setup custom interactive shell init stuff
+# Bind gpg-agent to this TTY if gpg commands are used.
+export GPG_TTY=$(tty)
 
 # Basic auto/tab complete:
 autoload -U compinit
@@ -69,10 +78,35 @@ bindkey -s '^o' 'lfcd\n'
 autoload edit-command-line; zle -N edit-command-line
 bindkey '^e' edit-command-line
 
-# Load aliases and shortcuts if existent.
-[ -f "$HOME/.config/shortcutrc" ] && source "$HOME/.config/shortcutrc"
-[ -f "$HOME/.config/aliasrc" ] && source "$HOME/.config/aliasrc"
+# This function is called whenever a command is not found.
+command_not_found_handler() {
+  local p=/nix/store/3ialdl03v18nh05965598vj0w0xdgp4b-command-not-found/bin/command-not-found
+  if [ -x $p -a -f /nix/var/nix/profiles/per-user/root/channels/nixos/programs.sqlite ]; then
+    # Run the helper program.
+    $p "$@"
 
+    # Retry the command if we just installed it.
+    if [ $? = 126 ]; then
+      "$@"
+    fi
+  else
+    # Indicate than there was an error so ZSH falls back to its default handler
+    echo "$1: command not found" >&2
+    return 127
+  fi
+}
+
+# Setup aliases.
+alias l='ls -alh'
+alias ll='ls -l'
+alias ls='ls --color=tty'
+alias vim='nvim'
+alias vi='nvim'
+
+source ${powerlevel10k}
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+source ${autosuggestions}
 # Load zsh-syntax-highlighting; should be last.
-source ${syntax-highlighting} 2>/dev/null
+source ${syntax-highlighting}
 ''

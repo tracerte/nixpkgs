@@ -5,6 +5,7 @@ let
   dotfiles = {
     ".zshrc" = import ./zshrc.nix pkgs;
     ".zshenv" = ./zshenv;
+    ".p10k.zsh" = ./p10k.zsh;
     ".gitconfig" = ./gitconfig;
     ".xinitrc" = import ./multi-head-xinitrc.nix pkgs;
   };

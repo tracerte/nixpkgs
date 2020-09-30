@@ -4,8 +4,10 @@ self: super: {
     paths = with self.pkgs; 
      let        
        dotfiles = import ../dotfiles pkgs.pkgs;
+       fonts = import ../fonts pkgs.pkgs;
      in [
       dotfiles
+      fonts
       xorg.xev
       xorg.xbacklight
       feh
@@ -15,6 +17,7 @@ self: super: {
       lf
       picom
       st
+      rxvt-unicode
       dvtm
       abduco
       pcmanfm
@@ -27,8 +30,6 @@ self: super: {
       neovim
       htop
       gitAndTools.gitFull
-      zsh-autosuggestions
-      zsh-syntax-highlighting
-    ];
+      ];
   };
 }
