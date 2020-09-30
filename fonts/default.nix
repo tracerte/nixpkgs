@@ -4,21 +4,26 @@ let
   lib = pkgs.lib;
   home = builtins.getEnv "HOME";
   fonts = {
-    "sourceCodePro" = ./sourceCodePro;
+    "sourceCodePro" = "${pkgs.source-code-pro}/share/fonts/opentype";
     "mesloLGSNF" = ./mesloLGSNF;
     "shareTechMonoNF" = ./shareTechMonoNF;
   };
 in
-  pkgs.writeScriptBin "installFonts" (''
-    #! /usr/bin/env/ bash
+  pkgs.writeScriptBin "updateFonts" (''
+    #! /usr/bin/env bash
+    set -e
     install_fonts() {
       local dst="$HOME/.local/share/fonts" 
       if [ ! -d "$dst" ]
       then
         mkdir -p "$dst"
       fi
-      echo "Copying $1 to local fonts directory"
-      cp -R "$2/." "$dst/"
+      local dir=$2
+      echo "Symlinking font $1"
+      for file in "$dir"/*
+      do
+        ln -sf "$dir"/"$(basename "$file")" "$dst"/"$(basename "$file")"
+      done
       echo "Updating font cache"
       fc-cache
     }
