@@ -11,5 +11,6 @@ in
   ${pkgs.slstatus}/bin/slstatus &
   ${monitorAssignment}/bin/multiHeadX &
   ${fehScript}/bin/fehbg &
+  [[ -f ~/.Xresources ]] && ${pkgs.xorg.xrdb}/bin/xrdb -merge -I$HOME ~/.Xresources
   exec ${pkgs.dwm}/bin/dwm
   ''

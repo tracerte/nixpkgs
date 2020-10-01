@@ -8,6 +8,7 @@ let
     ".p10k.zsh" = ./p10k.zsh;
     ".gitconfig" = ./gitconfig;
     ".xinitrc" = import ./multi-head-xinitrc.nix pkgs;
+    ".Xresources" = ./Xresources;
   };
 
 in
