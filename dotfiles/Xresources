@@ -1,6 +1,7 @@
 ! Snazzy Theme
 *background:   #282a36
 *foreground:   #eff0eb
+*.cursorColor: #9aedfe
 *color0:      #33303b
 *color8:      #4f4b58
 *color1:      #ff5c57
