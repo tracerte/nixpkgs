@@ -17,9 +17,7 @@ self: super: {
       lf
       picom
       st
-      rxvt-unicode
-      dvtm
-      abduco
+      tmux
       pcmanfm
       zip
       unzip

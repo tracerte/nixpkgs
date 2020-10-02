@@ -1,4 +1,5 @@
 st.opacity: 0.95
+st.font: MesloLGS NF-7 
 ! Snazzy Theme
 *background:   #282a36
 *foreground:   #eff0eb
