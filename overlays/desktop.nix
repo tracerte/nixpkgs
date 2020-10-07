@@ -11,6 +11,8 @@ self: super: {
         fonts
         xorg.xev
         xorg.xbacklight
+        neovim
+        neovim-qt
         nmap
         feh
         dwm

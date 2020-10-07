@@ -102,8 +102,6 @@ command_not_found_handler() {
 alias l='ls -alh'
 alias ll='ls -l'
 alias ls='ls --color=tty'
-alias vim='nvim'
-alias vi='nvim'
 
 source ${powerlevel10k}
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.

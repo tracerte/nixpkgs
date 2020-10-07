@@ -1,1 +1,2 @@
 setopt no_global_rcs
+EDITOR=vim
