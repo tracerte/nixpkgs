@@ -6,7 +6,6 @@ let
 in
 {
   dwm = dwm.overrideAttrs (old: {
-    name = "dwm-tracerte";
     src = my_src;
   }
   );

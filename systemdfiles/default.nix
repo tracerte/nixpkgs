@@ -1,26 +1,19 @@
 pkgs:
 let
-  lib = pkgs.lib;
-  home = builtins.getEnv "HOME";
-  dotfiles = {
-    ".zshrc" = import ./zshrc.nix pkgs;
-    ".zshenv" = ./zshenv;
-    ".p10k.zsh" = ./p10k.zsh;
-    ".gitconfig" = ./gitconfig;
-    ".xinitrc" = import ./multi-head-xinitrc.nix pkgs;
-    ".Xresources" = ./Xresources;
-    ".config/dunst/dunstrc" = ./dunstrc;
-  };
-
+    lib = pkgs.lib;
+    home = builtins.getEnv "HOME";
+    unitfiles = { 
+      "onedrive.service" = import ./onedrive-service.nix pkgs;
+    };
 in
-pkgs.writeScriptBin "updateDotFiles" (''
+pkgs.writeScriptBin "updateSystemdUserFiles" (''
   #! /usr/bin/env sh
   PATH=${pkgs.coreutils}/bin
   set -e
-  update_dot() {
+  update_systemd() {
     local src="$1"
-    local dst="$HOME/$2"
-    local hsh="$HOME/.updatedot/$2"
+    local dst="$HOME/.config/systemd/user/$2"
+    local hsh="$HOME/.updatesystemd/$2"
 
     mkdir -p "$(dirname "$dst")"
     mkdir -p "$(dirname "$hsh")"
@@ -51,7 +44,8 @@ pkgs.writeScriptBin "updateDotFiles" (''
 ''
 + lib.concatStringsSep "\n" (
   lib.mapAttrsToList
-    (name: value: "update_dot \"${value}\" \"${name}\"")
-    dotfiles
+    (name: value: "update_systemd \"${value}\" \"${name}\"")
+    unitfiles
 )
 )
+

@@ -4,10 +4,12 @@ self: super: {
     paths = with self.pkgs;
       let
         dotfiles = import ../dotfiles pkgs.pkgs;
+        systemdfiles = import ../systemdfiles pkgs.pkgs;
         fonts = import ../fonts pkgs.pkgs;
       in
       [
         dotfiles
+        systemdfiles
         fonts
         xorg.xev
         xorg.xbacklight
@@ -16,6 +18,8 @@ self: super: {
         nmap
         feh
         dwm
+        dunst
+        libnotify
         dmenu
         slstatus
         lf

@@ -11,6 +11,7 @@ pkgs.writeText "xinitrc" ''
   ${pkgs.slstatus}/bin/slstatus &
   ${monitorAssignment}/bin/multiHeadX &
   ${fehScript}/bin/fehbg &
+  ${pkgs.dunst}/bin/dunst &
   [[ -f ~/.Xresources ]] && ${pkgs.xorg.xrdb}/bin/xrdb -merge -I$HOME ~/.Xresources
   exec ${pkgs.dwm}/bin/dwm
 ''
