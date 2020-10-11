@@ -13,10 +13,7 @@ pkgs.writeScriptBin "updateFonts" (''
   set -e
   install_fonts() {
     local dst="$HOME/.local/share/fonts" 
-    if [ ! -d "$dst" ]
-    then
-      mkdir -p "$dst"
-    fi
+    mkdir -p "$dst"
     local dir=$2
     echo "Symlinking font $1"
     for file in "$dir"/*
