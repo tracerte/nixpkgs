@@ -7,9 +7,8 @@ let
     ".zshenv" = ./zshenv;
     ".p10k.zsh" = ./p10k.zsh;
     ".gitconfig" = ./gitconfig;
-    ".xsession" = import ./multi-head-xsession.nix pkgs;
-    ".xinitrc" = import ./multi-head-xinitrc.nix pkgs;
     ".Xresources" = ./Xresources;
+    ".xsession" = import ./xsession.nix {inherit pkgs; monitorAssignment = ''nvidia-settings --assign CurrentMetaMode="DP-4: nvidia-auto-select +1920+0, DP-3.1: nvidia-auto-select +1920+0, DP-3.2: nvidia-auto-select +0+0, DP-3.3: nvidia-auto-select +3840+0"'';};
     ".config/dunst/dunstrc" = ./dunstrc;
   };
 

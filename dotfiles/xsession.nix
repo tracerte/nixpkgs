@@ -1,15 +1,15 @@
-pkgs:
+{ pkgs, monitorAssignment ? "" }:
 let
-  monitorAssignment = pkgs.writeScriptBin "multiHeadX" ''
+  monitorScript = pkgs.writeScriptBin "monitorAssignment" ''
     #! /usr/bin/env bash
-    nvidia-settings --assign CurrentMetaMode="DP-4: nvidia-auto-select +1920+0, DP-3.1: nvidia-auto-select +1920+0, DP-3.2: nvidia-auto-select +0+0, DP-3.3: nvidia-auto-select +3840+0"
-  '';
+    ${monitorAssignment}
+      '';
   fehScript = import ./fehbg.nix pkgs;
 in
 pkgs.writeText "xsession" ''
   ${pkgs.picom}/bin/picom &
   ${pkgs.slstatus}/bin/slstatus &
-  ${monitorAssignment}/bin/multiHeadX &
+  ${monitorScript}/bin/monitorAssignment &
   ${fehScript}/bin/fehbg &
   ${pkgs.dunst}/bin/dunst &
   [[ -f ~/.Xresources ]] && ${pkgs.xorg.xrdb}/bin/xrdb -merge -I$HOME ~/.Xresources
