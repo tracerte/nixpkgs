@@ -1,17 +1,8 @@
-pkgs:
+{ pkgs, files ? {}}:
 let
   lib = pkgs.lib;
   home = builtins.getEnv "HOME";
-  dotfiles = {
-    ".zshrc" = import ./zshrc.nix pkgs;
-    ".zshenv" = ./zshenv;
-    ".p10k.zsh" = ./p10k.zsh;
-    ".gitconfig" = ./gitconfig;
-    ".Xresources" = ./Xresources;
-    ".xsession" = import ./xsession.nix {inherit pkgs; monitorAssignment = ''nvidia-settings --assign CurrentMetaMode="DP-4: nvidia-auto-select +1920+0, DP-3.1: nvidia-auto-select +1920+0, DP-3.2: nvidia-auto-select +0+0, DP-3.3: nvidia-auto-select +3840+0"'';};
-    ".config/dunst/dunstrc" = ./dunstrc;
-  };
-
+  dotfiles = files; 
 in
 pkgs.writeScriptBin "updateDotFiles" (''
   #! /usr/bin/env sh

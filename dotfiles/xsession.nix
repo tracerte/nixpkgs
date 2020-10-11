@@ -7,6 +7,7 @@ let
   fehScript = import ./fehbg.nix pkgs;
 in
 pkgs.writeText "xsession" ''
+  #! /usr/bin/env bash
   ${pkgs.picom}/bin/picom &
   ${pkgs.slstatus}/bin/slstatus &
   ${monitorScript}/bin/monitorAssignment &
