@@ -7,6 +7,7 @@ let
     ".zshenv" = ./zshenv;
     ".p10k.zsh" = ./p10k.zsh;
     ".gitconfig" = ./gitconfig;
+    ".xsession" = import ./multi-head-xsession.nix pkgs;
     ".xinitrc" = import ./multi-head-xinitrc.nix pkgs;
     ".Xresources" = ./Xresources;
     ".config/dunst/dunstrc" = ./dunstrc;
