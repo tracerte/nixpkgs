@@ -5,9 +5,9 @@
      enableAdobeFlash = true;
     };
 
-    chromium = {
-     enablePepperFlash = true; # Chromium's non-NSAPI alternative to Adobe Flash
-    };
+    # chromium = {
+    # enablePepperFlash = true; # Chromium's non-NSAPI alternative to Adobe Flash
+    #};
 
 }
 

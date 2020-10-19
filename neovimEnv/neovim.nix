@@ -3,10 +3,6 @@ let
   plugins = self.vimPlugins // self.callPackage ./plugins.nix {};
 in
 {
-  neovimEnv = self.buildEnv {
-    name = "neovimEnv";
-    paths = with self.pkgs; [ nodejs ];
-  };
   neovim = super.neovim.override {
     vimAlias = true;
     viAlias = true;
@@ -19,6 +15,7 @@ in
         vim-nix 
         coc-nvim 
         ale
+        vim-lsp-cxx-highlight
       ];
       # manually loadable by calling `:packadd $plugin-name`
       opt = [ ];
