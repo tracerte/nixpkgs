@@ -3,15 +3,15 @@ self: super: {
     name = "achilles-desktop";
     paths = with self.pkgs;
     let
-      neovimEnv = self.callPackage ../neovimEnv {};
-      devEnv = self.callPackage ../devEnv {};
-      terminalEnv = self.callPackage ../terminalEnv {};
-      desktopEnv = self.callPackage ../desktopEnv {
+      environments = import ../environments;
+      neovimEnv = import environments.neovim {};
+      devEnv = import environments.developer {};
+      terminalEnv = import environments.terminal {};
+      desktopEnv = import environments.desktop {
         monitorAssignment = ''nvidia-settings --assign CurrentMetaMode="DP-4: nvidia-auto-select +1920+0, DP-3.1: nvidia-auto-select +1920+0, DP-3.2: nvidia-auto-select +0+0, DP-3.3: nvidia-auto-select +3840+0"'';
       };
-      dotfiles =  devEnv.files // desktopEnv.files // terminalEnv.files // neovimEnv.files; 
-      symHome = self.callPackage ../symHome {nixpkgs = pkgs.pkgs; files = dotfiles;};
-      # dotfileUpdate = import ../dotfiles { pkgs = pkgs.pkgs; files = dotfiles;};
+      files =  devEnv.files // desktopEnv.files // terminalEnv.files // neovimEnv.files; 
+      symHome = self.callPackage ../symHome {nixpkgs = pkgs.pkgs; inherit files;};
       systemdfiles = import ../systemdfiles pkgs.pkgs;
       fonts = import ../fonts pkgs.pkgs;
     in
@@ -26,7 +26,6 @@ self: super: {
         gocryptfs
         htop
         symHome
-        # dotfileUpdate
       ];
   };
 }
