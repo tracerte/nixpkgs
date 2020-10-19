@@ -1,18 +1,17 @@
-pkgs:
-let
-  dotfiles = {
+{ nixpkgs ? import <nixpkgs> {}}:
+with nixpkgs;
+{
+  env = buildEnv {
+    name = "devEnv";
+    paths = [
+      direnv
+      nix-direnv
+      niv
+      gitAndTools.gitFull
+    ];
+  };
+  files = {
     ".gitconfig" = ./gitconfig;
     ".direnvrc" = ./direnvrc;
   };
-  symlinkHome = import ../symHome/default.nix {pkgs = pkgs; files = dotfiles;};
-in 
-pkgs.buildEnv {
-  name = "devEnv";
-  paths = with pkgs; [
-    direnv
-    nix-direnv
-    niv
-    gitAndTools.gitFull
-  ];
-  # postBuild = "${symlinkHome}/bin/symHome";
 }

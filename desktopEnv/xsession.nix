@@ -1,18 +1,19 @@
-{ pkgs, monitorAssignment ? "" }:
+{ nixpkgs ? import <nixpkgs> {}, monitorAssignment ? "" }:
+with nixpkgs;
 let
-  monitorScript = pkgs.writeScriptBin "monitorAssignment" ''
+  monitorScript = writeScriptBin "monitorAssignment" ''
     #! /usr/bin/env bash
     ${monitorAssignment}
       '';
-  fehScript = import ./fehbg.nix pkgs;
+  fehScript = import ./fehbg.nix {inherit nixpkgs;};
 in
-pkgs.writeScript "xsession" ''
+writeScript "xsession" ''
   #! /usr/bin/env bash
-  ${pkgs.picom}/bin/picom &
-  ${pkgs.slstatus}/bin/slstatus &
+  ${picom}/bin/picom &
+  ${slstatus}/bin/slstatus &
   ${monitorScript}/bin/monitorAssignment &
   ${fehScript}/bin/fehbg &
-  ${pkgs.dunst}/bin/dunst &
-  [[ -f ~/.Xresources ]] && ${pkgs.xorg.xrdb}/bin/xrdb -merge -I$HOME ~/.Xresources
-  exec ${pkgs.dwm}/bin/dwm
+  ${dunst}/bin/dunst &
+  [[ -f ~/.Xresources ]] && ${xorg.xrdb}/bin/xrdb -merge -I$HOME ~/.Xresources
+  exec ${dwm}/bin/dwm
 ''

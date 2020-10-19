@@ -1,8 +1,9 @@
-pkgs:
+{ nixpkgs ? import <nixpkgs> {} }:
+with nixpkgs;
 let
   wallpaperDir = ./wallpapers;
 in
-pkgs.writeScriptBin "fehbg" ''
+writeScriptBin "fehbg" ''
   #! /usr/bin/env bash
-  ${pkgs.feh}/bin/feh --bg-max --no-fehbg --randomize ${wallpaperDir}/* 
+  ${feh}/bin/feh --bg-max --no-fehbg --randomize ${wallpaperDir}/* 
 ''

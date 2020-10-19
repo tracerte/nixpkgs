@@ -1,11 +1,13 @@
-let 
-  pkgs = import <nixpkgs> {overlays = [ (import ./neovim.nix)];};
-in
-pkgs.buildEnv {
-  name = "neovimEnv";
-  paths = with pkgs; [ 
-    neovim 
-    nodejs 
-  ];
+{ nixpkgs ? import <nixpkgs> { overlays = [ (import ./neovim.nix)];}}:
+with nixpkgs;
+{
+  env = buildEnv {
+    name = "neovimEnv";
+    paths = [
+      neovim
+      nodejs
+    ];
+  };
+  files = {};
 }
 

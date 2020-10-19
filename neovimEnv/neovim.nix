@@ -1,19 +1,20 @@
-self: super: 
+self: super:
+with super;
 let
-  plugins = self.vimPlugins // self.callPackage ./plugins.nix {};
+  plugins = vimPlugins // callPackage ./plugins.nix {};
 in
 {
-  neovim = super.neovim.override {
+   neovim= neovim.override {
     vimAlias = true;
     viAlias = true;
     configure = {
       customRC = builtins.readFile ./vimrc;
       packages.myVimPackages = {
       # loaded on launch
-      start = with plugins; [ 
-        vim-sensible 
-        vim-nix 
-        coc-nvim 
+      start = with plugins; [
+        vim-sensible
+        vim-nix
+        coc-nvim
         ale
         vim-lsp-cxx-highlight
       ];
