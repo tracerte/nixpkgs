@@ -14,6 +14,5 @@ with nixpkgs;
   files = {
     ".zshrc" = import ./zshrc.nix nixpkgs;
     ".zshenv" = ./zshenv;
-    ".p10k.zsh" = ./p10k.zsh;
   };
 }

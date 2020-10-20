@@ -29,7 +29,7 @@ with nixpkgs;
     ];
   };
   files = {
-    ".Xresources" = ./Xresources;
+    ".Xresources" = import ./Xresources.nix { inherit nixpkgs; };
     ".xsession" = import ./xsession.nix { inherit nixpkgs monitorAssignment; };
     ".config/dunst/dunstrc" = ./dunstrc;
   };

@@ -3,6 +3,9 @@ let
   syntax-highlighting = "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh";
   autosuggestions = "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh";
   powerlevel10k = "${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
+  gruvbox-material-dark = ./p10k-themes/gruvbox-material-dark.zsh;
+  gruvbox-material-light = ./p10k-themes/gruvbox-material-light.zsh;
+  theme = gruvbox-material-dark;
 in
 pkgs.writeText "zshrc" ''
 
@@ -106,10 +109,11 @@ alias ls='ls --color=tty'
 
 # Set up direnv
 command -v direnv > /dev/null && eval "$(direnv hook zsh)"
-
+# Powerlevel10k
 source ${powerlevel10k}
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# Theme
+source ${theme}
+# Auto Suggestions
 source ${autosuggestions}
 # Load zsh-syntax-highlighting; should be last.
 source ${syntax-highlighting}
