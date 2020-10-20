@@ -4,6 +4,7 @@ let
   home = builtins.getEnv "HOME";
   fonts = {
     "sourceCodePro" = "${pkgs.source-code-pro}/share/fonts/opentype";
+    "siji" = "${pkgs.siji}/share/fonts/misc";
     "mesloLGSNF" = ./mesloLGSNF;
     "shareTechMonoNF" = ./shareTechMonoNF;
   };

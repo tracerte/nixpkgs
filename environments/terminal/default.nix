@@ -1,4 +1,7 @@
-{ nixpkgs ? import <nixpkgs> {}}:
+{}:
+let
+  nixpkgs = import <nixpkgs> {}; 
+in
 with nixpkgs;
 {
   env = buildEnv {

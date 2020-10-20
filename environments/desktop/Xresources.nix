@@ -2,13 +2,10 @@
 with nixpkgs;
 
 let
-  snazzy = (builtins.readFile ./xresources-themes/snazzy);
-  gruvbox-dark = (builtins.readFile ./xresources-themes/gruvbox-dark);
-  gruvbox-light = (builtins.readFile ./xresources-themes/gruvbox-light);
   color-theme = gruvbox-dark;
+  snazzy = (builtins.readFile ./xresources/themes/snazzy);
+  gruvbox-dark = (builtins.readFile ./xresources/themes/gruvbox-dark);
+  gruvbox-light = (builtins.readFile ./xresources/themes/gruvbox-light);
+  urxvt = (builtins.readFile ./xresources/applications/urxvt);
 in
-writeText "Xresources" (''
-  st.opacity: 0.95
-  st.font: MesloLGS NF-7
-''
-+ "\n" + color-theme )
+  writeText "Xresources" ( urxvt + "\n" + color-theme )

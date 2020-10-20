@@ -1,4 +1,7 @@
-{ nixpkgs ? import <nixpkgs> { overlays = [ (import ./neovim.nix)];}}:
+{ }:
+let
+  nixpkgs = import <nixpkgs> { overlays = [ (import ./overlay.nix)];}; 
+in
 with nixpkgs;
 {
   env = buildEnv {

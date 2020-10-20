@@ -10,10 +10,8 @@ in
 writeScript "xsession" ''
   #! /usr/bin/env bash
   ${picom}/bin/picom &
-  ${slstatus}/bin/slstatus &
   ${monitorScript}/bin/monitorAssignment &
   ${fehScript}/bin/fehbg &
   ${dunst}/bin/dunst &
-  [[ -f ~/.Xresources ]] && ${xorg.xrdb}/bin/xrdb -merge -I$HOME ~/.Xresources
-  exec ${dwm}/bin/dwm
+  exec ${i3}/bin/i3
 ''

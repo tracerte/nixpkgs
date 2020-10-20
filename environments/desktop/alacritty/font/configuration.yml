@@ -1,0 +1,4 @@
+# Font configuration (changes require restart)
+font:
+  normal:
+    family: "MesloLGS NF"

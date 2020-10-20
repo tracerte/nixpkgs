@@ -1,17 +1,16 @@
-{ nixpkgs ? import <nixpkgs> { overlays= [
-  (import ./st.nix)
-  (import ./dwm.nix)
-  (import ./slstatus.nix)
-];}, 
-  monitorAssignment ? "" }:
+{ monitorAssignment ? "" }:
+let 
+  nixpkgs = import <nixpkgs> { overlays = [ (import ./polybar/overlay.nix) ];};
+in
 with nixpkgs;
 { 
   env = buildEnv {
     name = "desktopEnv";
     paths = [
-      dwm
-      st
-      slstatus
+      i3
+      i3lock
+      alacritty
+      polybar
       dmenu
       picom
       xorg.xev
@@ -29,8 +28,11 @@ with nixpkgs;
     ];
   };
   files = {
-    ".Xresources" = import ./Xresources.nix { inherit nixpkgs; };
+    ".config/i3/config" = ./i3/config;
+    ".alacritty.yml" = import ./alacritty { inherit nixpkgs; };
     ".xsession" = import ./xsession.nix { inherit nixpkgs monitorAssignment; };
-    ".config/dunst/dunstrc" = ./dunstrc;
+    ".config/dunst/dunstrc" = ./dunst/dunstrc;
+    ".config/polybar/config" = ./polybar/config;
+    ".config/polybar/launch.sh" = import ./polybar/launch.nix { inherit nixpkgs; };
   };
 }
