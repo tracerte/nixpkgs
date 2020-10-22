@@ -8,7 +8,7 @@ self: super: {
       devEnv = import environments.developer {};
       terminalEnv = import environments.terminal {};
       desktopEnv = import environments.desktop {
-        monitorAssignment = ''nvidia-settings --assign CurrentMetaMode="DP-4: nvidia-auto-select +1920+0, DP-3.1: nvidia-auto-select +1920+0, DP-3.2: nvidia-auto-select +0+0, DP-3.3: nvidia-auto-select +3840+0"'';
+        monitorAssignment = ''nvidia-settings --assign CurrentMetaMode="DP-4: nvidia-auto-select +0+1080, DP-3.1: nvidia-auto-select +1920+0, DP-3.2: nvidia-auto-select +0+0, DP-3.3: nvidia-auto-select +3840+0"'';
       };
       files =  devEnv.files // desktopEnv.files // terminalEnv.files // neovimEnv.files; 
       symHome = self.callPackage ../symHome {nixpkgs = pkgs.pkgs; inherit files;};

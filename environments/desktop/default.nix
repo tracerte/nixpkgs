@@ -1,6 +1,7 @@
 { monitorAssignment ? "" }:
 let 
   nixpkgs = import <nixpkgs> { overlays = [ (import ./polybar/overlay.nix) ];};
+  mopidy-wrapped = import ./mopidy {};
 in
 with nixpkgs;
 { 
@@ -25,6 +26,8 @@ with nixpkgs;
       libreoffice-fresh
       hunspell
       hunspellDicts.en-us
+      pavucontrol
+      mopidy-wrapped
     ];
   };
   files = {
