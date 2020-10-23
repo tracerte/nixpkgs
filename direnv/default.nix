@@ -1,20 +1,24 @@
 { }:
+
 let
   nixpkgs = import <nixpkgs> {};
 in
 with nixpkgs;
 {
   env = buildEnv {
-    name = "devEnv";
+    name = "direnv-env";
     paths = [
       direnv
       nix-direnv
       niv
-      gitAndTools.gitFull
     ];
   };
   files = {
-    ".gitconfig" = ./gitconfig;
     ".direnvrc" = ./direnvrc;
   };
+  services = {};
+  fonts = {};
 }
+
+
+

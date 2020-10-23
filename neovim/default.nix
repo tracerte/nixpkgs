@@ -12,5 +12,7 @@ with nixpkgs;
     ];
   };
   files = {};
+  services = {};
+  fonts = {};
 }
 

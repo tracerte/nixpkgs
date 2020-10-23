@@ -5,17 +5,22 @@ in
 with nixpkgs;
 {
   env = buildEnv {
-    name = "terminalEnv";
+    name = "zshEnv";
     paths = with pkgs; 
     [
+      zsh
+      zsh-syntax-highlighting
+      zsh-autosuggestions
+      zsh-powerlevel10k
       lf
-      tmux
-      zip
-      unzip
     ];
   };
   files = {
     ".zshrc" = import ./zshrc.nix nixpkgs;
     ".zshenv" = ./zshenv;
+  };
+  services = {};
+  fonts = {
+    "mesloLGSNF" = ./mesloLGSNF;
   };
 }

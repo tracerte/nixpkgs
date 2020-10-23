@@ -1,14 +1,16 @@
-pkgs:
+{}:
+with import <nixpkgs> {};
 
-pkgs.writeText "onedrive-service" ''
+writeTextDir "lib/systemd/user/onedrive.service" ''
 [Unit]
 Description=OneDrive Free Client
 Documentation=https://github.com/abraunegg/onedrive
 After=network-online.target
+After=graphical-session.target
 Wants=network-online.target
 
 [Service]
-ExecStart=${pkgs.onedrive}/bin/onedrive --monitor 
+ExecStart=${onedrive}/bin/onedrive --monitor 
 Restart=on-failure
 RestartSec=3
 RestartPreventExitStatus=3
