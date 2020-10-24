@@ -6,6 +6,19 @@ in
 nixpkgs.writeScriptBin "homenid" (''
   #! /usr/bin/env bash
   set -e
+
+  declare -A fileDB
+  configDir="$HOME/.homenid"
+  fileDBFile="$configDir/fileDB.sh"
+  serviceDBFile="$configDir/serviceDB.sh"
+  fontDBFile="$configDir/fontDB.sh"
+
+  writeFileDB(){
+    mkdir -p "$configDir"
+    declare -A serializedFileDB
+    for k in "''${!fileDB[@]}"; do serializedFileDB[$k]=''${fileDB[$k]}; done
+    declare -p serializedFileDB > "$fileDBFile"
+  }
   
   # arg1: dest
   # arg2: src (file or dir)
@@ -34,8 +47,21 @@ nixpkgs.writeScriptBin "homenid" (''
   # arg2: fileSrc
   file() {
     local fileDst="$HOME/$1"
-    echo "Bootstrapping file(s)"
-    sym "$fileDst" "$2"
+    declare -A serializedFileDB
+    source -- "$fileDBFile"
+    if [[ ''${serializedFileDB["$fileDst"]} ]]; then
+      if [[ ''${serializedFileDB["$fileDst"]} == "$2" ]]; then
+        echo "Skipping file $1, has not changed"
+      else
+        echo "Updating file(s)"
+        sym "$fileDst" "$2"
+      fi
+    else
+      echo "Installing new file(s)"
+      sym "$fileDst" "$2"
+    fi
+    echo "Writing $1 to db"
+    fileDB["$fileDst"]+="$2"
   }
   # arg1: fontName
   # arg2: fontSrc
@@ -76,4 +102,10 @@ nixpkgs.writeScriptBin "homenid" (''
     (name: value: "service \"${name}\" \"${value}\"")
     services
 )
++
+"\n"
++
+''
+writeFileDB
+''
 )
