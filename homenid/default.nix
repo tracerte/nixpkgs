@@ -8,18 +8,27 @@ nixpkgs.writeScriptBin "homenid" (''
   set -e
 
   declare -A fileDB
+  declare -A fontDB
+  declare -A serviceDB
   configDir="$HOME/.homenid"
-  fileDBFile="$configDir/fileDB.sh"
-  serviceDBFile="$configDir/serviceDB.sh"
-  fontDBFile="$configDir/fontDB.sh"
+  fileDBFile="fileDB.sh"
+  serviceDBFile="serviceDB.sh"
+  fontDBFile="fontDB.sh"
 
-  writeFileDB(){
+  setup(){
     mkdir -p "$configDir"
-    declare -A serializedFileDB
-    for k in "''${!fileDB[@]}"; do serializedFileDB[$k]=''${fileDB[$k]}; done
-    declare -p serializedFileDB > "$fileDBFile"
+    touch "$configDir/$fileDBFile" 
+    touch "$configDir/$fontDBFile" 
+    touch "$configDir/$serviceDBFile" 
+    }
+  # arg1: db to write
+  # arg2: file to write db
+  # arg3: serialized db name 
+  writeDB(){
+    eval "declare -A $3="''${1#*=}
+    declare -p "$3" > "$configDir/$2"
   }
-  
+    
   # arg1: dest
   # arg2: src (file or dir)
   sym() {
@@ -48,7 +57,7 @@ nixpkgs.writeScriptBin "homenid" (''
   file() {
     local fileDst="$HOME/$1"
     declare -A serializedFileDB
-    source -- "$fileDBFile"
+    source -- "$configDir/$fileDBFile"
     if [[ ''${serializedFileDB["$fileDst"]} ]]; then
       if [[ ''${serializedFileDB["$fileDst"]} == "$2" ]]; then
         echo "Skipping file $1, has not changed"
@@ -67,23 +76,56 @@ nixpkgs.writeScriptBin "homenid" (''
   # arg2: fontSrc
   font() {
     local fontDst="$HOME/.local/share/fonts"
-    echo "Bootstrapping font $1"
-    sym "$fontDst" "$2"
-    echo "Updating font cache"
-    fc-cache
+    declare -A serializedFontDB
+    source -- "$configDir/$fontDBFile"
+    if [[ ''${serializedFontDB["$fontDst/$1"]} ]]; then
+      if [[ ''${serializedFontDB["$fontDst/$1"]} == "$2" ]]; then
+        echo "Skipping font $1, has not changed"
+      else
+        echo "Updating font(s)"
+        sym "$fontDst" "$2"
+        echo "Updating font cache"
+        fc-cache
+      fi
+    else
+      echo "Installing new font(s)"
+      sym "$fontDst" "$2"
+      echo "Updating font cache"
+      fc-cache
+    fi
+    echo "Writing $1 to db"
+    fontDB["$fontDst/$1"]+="$2"
   }
   # arg1: serviceName
   # arg2: serviceSrc
   service () {
     local serviceDst="$HOME/.config/systemd/user/$1"
-    echo "Bootstrapping systemd service file $1"
-    sym "$serviceDst" "$2"
-    systemctl --user daemon-reload
-    echo "Enabling service $1"
-    systemctl --user enable "$1"
+    declare -A serializedServiceDB
+    source -- "$configDir/$serviceDBFile"
+    if [[ ''${serializedServiceDB["$serviceDst"]} ]]; then
+      if [[ ''${serializedServiceDB["$serviceDst"]} == "$2" ]]; then
+        echo "Skipping service $1, has not changed"
+      else
+        echo "Updating service(s)"
+        sym "$serviceDst" "$2"
+        systemctl --user daemon-reload
+        echo "Enabling service $1"
+        systemctl --user enable "$1"
+        fi
+    else
+      echo "Installing new service(s)"
+      sym "$serviceDst" "$2"
+      systemctl --user daemon-reload
+      echo "Enabling service $1"
+      systemctl --user enable "$1"
+    fi
+    echo "Writing $1 to db"
+    serviceDB["$serviceDst"]+="$2"
   }
+
+setup
 ''
-+ lib.concatStringsSep "\n" (
+ + lib.concatStringsSep "\n" (
   lib.mapAttrsToList
     (name: value: "file \"${name}\" \"${value}\"")
     files
@@ -106,6 +148,9 @@ nixpkgs.writeScriptBin "homenid" (''
 "\n"
 +
 ''
-writeFileDB
+# See https://stackoverflow.com/a/8879444 for details on passing bash associative arrays to functions
+writeDB "''$(declare -p fileDB)" "$fileDBFile" "serializedFileDB"
+writeDB "''$(declare -p fontDB)" "$fontDBFile" "serializedFontDB"
+writeDB "''$(declare -p serviceDB)" "$serviceDBFile" "serializedServiceDB"
 ''
 )
