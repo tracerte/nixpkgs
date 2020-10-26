@@ -10,18 +10,11 @@ Choose an overlay to install.
 $ nix-env -Air nixos.achilles
 ```
 
-Install files (usually dotfiles) into home folder:
+Install files (usually dotfiles into home folder), fonts and systemd user service units:
 
 ```sh
-$ symHome
+$ homenid
 ```
-
-Install Fonts:
-
-```sh
-$ updateFonts
-```
-
 ## How To's
 
 Some common tasks that are not exactly obvious.

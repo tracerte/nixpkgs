@@ -21,6 +21,6 @@ with nixpkgs;
   };
   services = {};
   fonts = {
-    "mesloLGSNF" = ./mesloLGSNF;
+    "MesloLGS" = ./mesloLGSNF;
   };
 }
