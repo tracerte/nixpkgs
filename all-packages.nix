@@ -12,7 +12,6 @@ with import <nixpkgs>;
   i3 = ./i3;
   mpd = ./mpd;
   neovim = ./neovim;
-  nix-patch-compile-command = ./nix-patch-compile-commands;
   onedrive = ./onedrive;
   polybar = ./polybar;
   xresources = ./xresources;
