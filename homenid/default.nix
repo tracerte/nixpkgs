@@ -39,34 +39,29 @@ nixpkgs.writeScriptBin "homenid" (''
   declare -A serializedServiceDB
   source -- "$configDir/$serviceDBFile"
 
-  cleanupFiles(){
-    for fileInDB in "''${!serializedFileDB[@]}"
-    do
-      if [[ ! " ''${filesTBI[@]} " =~ "$fileInDB" ]]; then
-        echo "No longer managing file $fileInDB, removing it"
-        removeFile "$fileInDB"
-      fi
-    done
+  die() {
+    [ $# -gt 0 ] && printf -- "%s\n" "$*"
+    exit 1
   }
-  cleanupServices(){
-    for serviceInDB in "''${!serializedServiceDB[@]}"
+  # arg1: db
+  # arg2: tbi
+  # arg3: cleanup function
+  cleanup(){
+    # eval "declare -A db="''${1#*=}
+    local -n db=$1
+    local -n tbi=$2
+    for e in "''${!db[@]}"
     do
-      if [[ ! " ''${servicesTBI[@]} " =~ "$serviceInDB" ]]; then
-        echo "No longer managing service $serviceInDB, removing it"
-        removeService "$serviceInDB"
-      fi
-    done
-  }
-  cleanupFonts(){
-    for fontInDB in "''${!serializedFontDB[@]}"
-    do
-      if [[ ! " ''${fontsTBI[@]} " =~ "$fontInDB" ]]; then
-        echo "No longer managing font $fontInDB, removing it"
-        removeFont "$fontInDB"
+      if [[ ! " ''${tbi[@]} " =~ "$e" ]]; then
+        echo "No longer managing $e, removing it"
+        $3 "$e"
       fi
     done
   }
 
+  dummyRemove(){
+    echo "Removing $1"
+  }
 
   # arg1: db to write
   # arg2: file to write db
@@ -108,7 +103,15 @@ nixpkgs.writeScriptBin "homenid" (''
 
   # arg1: file location
   removeFile(){
-    rm "$1"
+    read -p "Are you sure you want to delete $1? " -n 1 -r
+    echo    # (optional) move to a new line
+    if [[ $REPLY =~ ^[Yy]$ ]];then 
+      echo "Deleting $1"
+      rm "$1"
+    else
+      echo "Skipping the removal of $1"
+      die "Aborted"
+    fi
   }
   # arg1: fileName
   # arg2: fileSrc
@@ -138,11 +141,21 @@ nixpkgs.writeScriptBin "homenid" (''
     fc-cache
   }
 
-  # arg1: font location
+  # arg1: font name to match
   removeFont(){
     shopt -s nocaseglob
-    rm $1*
-    fc-cache
+    echo "These fonts matched the name $1 given and are pending deletion, please review them:"
+    ls $1*
+    read -p "Are you sure you want to delete these fonts? " -n 1 -r
+    echo    # (optional) move to a new line
+    if [[ $REPLY =~ ^[Yy]$ ]];then 
+      echo "Deleting the listed fonts"
+      rm $1*
+      fc-cache
+    else
+      echo "Skipping the removal of $1"
+      die "Aborted"
+    fi
   }
   # arg1: fontName
   # arg2: fontSrc
@@ -176,11 +189,18 @@ nixpkgs.writeScriptBin "homenid" (''
   # arg1: service location
   removeService(){
     serviceName="$(basename $1)" 
-    echo "Stopping service $serviceName"
-    systemctl --user stop "$serviceName"
-    echo "Disabling service $serviceName"
-    systemctl --user disable "$serviceName"
-    systemctl --user daemon-reload
+    read -p "Are you sure you want to delete $1? " -n 1 -r
+    echo    # (optional) move to a new line
+    if [[ $REPLY =~ ^[Yy]$ ]];then 
+      echo "Stopping service $serviceName"
+      systemctl --user stop "$serviceName"
+      echo "Disabling service $serviceName"
+      systemctl --user disable "$serviceName"
+      systemctl --user daemon-reload
+    else
+      echo "Skipping the removal of $1"
+      die "Aborted"
+    fi
   }
 
   # arg1: serviceName
@@ -202,9 +222,9 @@ nixpkgs.writeScriptBin "homenid" (''
     serviceDB["$serviceDst"]+="$2"
   }
 
-  cleanupFiles
-  cleanupFonts
-  cleanupServices
+  cleanup serializedFileDB filesTBI "removeFile"
+  cleanup serializedFontDB fontsTBI "removeFont"
+  cleanup serializedServiceDB servicesTBI "removeService"
 ''
  + lib.concatStringsSep "\n" (
   lib.mapAttrsToList
