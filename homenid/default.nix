@@ -4,9 +4,9 @@ let
   home = builtins.getEnv "HOME";
   serviceHome = "${home}/.config/systemd/user";
   fontsHome = "${home}/.local/share/fonts";
-  filesTBI = toString (lib.mapAttrsToList(name: value: "${home}/${name}") files);
-  servicesTBI = toString (lib.mapAttrsToList(name: value: "${serviceHome}/${name}") services);
-  fontsTBI = toString (lib.mapAttrsToList(name: value: "${fontsHome}/${name}") fonts);
+  filesTBI = toString (lib.mapAttrsToList(name: value: "${name}") files);
+  servicesTBI = toString (lib.mapAttrsToList(name: value: "${name}") services);
+  fontsTBI = toString (lib.mapAttrsToList(name: value: "${name}") fonts);
 in
 nixpkgs.writeScriptBin "homenid" (''
   #! /usr/bin/env bash
@@ -47,14 +47,14 @@ nixpkgs.writeScriptBin "homenid" (''
   # arg2: tbi
   # arg3: cleanup function
   cleanup(){
-    # eval "declare -A db="''${1#*=}
     local -n db=$1
     local -n tbi=$2
+    local func=$3
     for e in "''${!db[@]}"
     do
       if [[ ! " ''${tbi[@]} " =~ "$e" ]]; then
         echo "No longer managing $e, removing it"
-        $3 "$e"
+        $func "$e"
       fi
     done
   }
@@ -95,19 +95,49 @@ nixpkgs.writeScriptBin "homenid" (''
     fi
     }
 
+  # arg1: item name
+  # arg2: item dest
+  # arg3: item src
+  # arg4: item installation function
+  # arg5: item db
+  # arg6: item serialized db
+  initialize() {
+    local name=$1
+    local dst=$2
+    local src=$3
+    local func=$4
+    local -n db=$5
+    local -n serializedDB=$6
+    if [[ ''${serializedDB["$name"]} ]]; then
+      if [[ ''${serializedDB["$name"]} == "$src" ]]; then
+        echo "Skipping item $name, has not changed"
+      else
+        echo "Updating item(s)"
+        $func "$dst" "$src"
+      fi
+    else
+      echo "Installing new item(s)"
+        $func "$dst" "$src"
+    fi
+    echo "Writing $name to db"
+    db["$name"]+="$src"
+  }
+
+
   # arg1: file destination
   # arg2: file source
   installFile(){
     sym "$1" "$2"
   }
 
-  # arg1: file location
+  # arg1: file name
   removeFile(){
-    read -p "Are you sure you want to delete $1? " -n 1 -r
+    local fileDst="$HOME/$1"
+    read -p "Are you sure you want to delete $fileDst? " -n 1 -r
     echo    # (optional) move to a new line
     if [[ $REPLY =~ ^[Yy]$ ]];then 
-      echo "Deleting $1"
-      rm "$1"
+      echo "Deleting $fileDst"
+      rm "$fileDst"
     else
       echo "Skipping the removal of $1"
       die "Aborted"
@@ -117,19 +147,8 @@ nixpkgs.writeScriptBin "homenid" (''
   # arg2: fileSrc
   file() {
     local fileDst="$HOME/$1"
-    if [[ ''${serializedFileDB["$fileDst"]} ]]; then
-      if [[ ''${serializedFileDB["$fileDst"]} == "$2" ]]; then
-        echo "Skipping file $1, has not changed"
-      else
-        echo "Updating file(s)"
-        installFile "$fileDst" "$2"
-      fi
-    else
-      echo "Installing new file(s)"
-      installFile "$fileDst" "$2"
-    fi
-    echo "Writing $1 to db"
-    fileDB["$fileDst"]+="$2"
+    echo "Initializing files"
+    initialize $1 $fileDst $2 "installFile" fileDB serializedFileDB    
   }
 
 
@@ -144,13 +163,14 @@ nixpkgs.writeScriptBin "homenid" (''
   # arg1: font name to match
   removeFont(){
     shopt -s nocaseglob
+    local font="$HOME/.local/share/fonts/$1"
     echo "These fonts matched the name $1 given and are pending deletion, please review them:"
-    ls $1*
+    ls $font*
     read -p "Are you sure you want to delete these fonts? " -n 1 -r
     echo    # (optional) move to a new line
     if [[ $REPLY =~ ^[Yy]$ ]];then 
       echo "Deleting the listed fonts"
-      rm $1*
+      rm $font*
       fc-cache
     else
       echo "Skipping the removal of $1"
@@ -161,44 +181,33 @@ nixpkgs.writeScriptBin "homenid" (''
   # arg2: fontSrc
   font() {
     local fontDst="$HOME/.local/share/fonts"
-    if [[ ''${serializedFontDB["$fontDst/$1"]} ]]; then
-      if [[ ''${serializedFontDB["$fontDst/$1"]} == "$2" ]]; then
-        echo "Skipping font $1, has not changed"
-      else
-        echo "Updating font(s)"
-        installFont "$fontDst" "$2"
-      fi
-    else
-      echo "Installing new font(s)"
-      installFont "$fontDst" "$2"
-    fi
-    echo "Writing $1 to db"
-    fontDB["$fontDst/$1"]+="$2"
+    echo "Initializing font"
+    initialize $1 $fontDst $2 "installFont" fontDB serializedFontDB 
+  }
+
+  # arg1: service destination
+  # arg2: service source
+  installService(){
+    local name="$(basename $1)"
+    sym "$1" "$2"
+    systemctl --user daemon-reload
+    echo "Enabling service $name"
+    systemctl --user enable "$name"
   }
 
   # arg1: service name
-  # arg2: service destination
-  # arg3: service source
-  installService(){
-    sym "$2" "$3"
-    systemctl --user daemon-reload
-    echo "Enabling service $1"
-    systemctl --user enable "$1"
-  }
-
-  # arg1: service location
   removeService(){
-    serviceName="$(basename $1)" 
-    read -p "Are you sure you want to delete $1? " -n 1 -r
+    local name=$1 
+    read -p "Are you sure you want to delete $name? " -n 1 -r
     echo    # (optional) move to a new line
     if [[ $REPLY =~ ^[Yy]$ ]];then 
-      echo "Stopping service $serviceName"
-      systemctl --user stop "$serviceName"
-      echo "Disabling service $serviceName"
-      systemctl --user disable "$serviceName"
+      echo "Stopping service $name"
+      systemctl --user stop "$name"
+      echo "Disabling service $name"
+      systemctl --user disable "$name"
       systemctl --user daemon-reload
     else
-      echo "Skipping the removal of $1"
+      echo "Skipping the removal of $name"
       die "Aborted"
     fi
   }
@@ -207,20 +216,9 @@ nixpkgs.writeScriptBin "homenid" (''
   # arg2: serviceSrc
   service () {
     local serviceDst="$HOME/.config/systemd/user/$1"
-    if [[ ''${serializedServiceDB["$serviceDst"]} ]]; then
-      if [[ ''${serializedServiceDB["$serviceDst"]} == "$2" ]]; then
-        echo "Skipping service $1, has not changed"
-      else
-        echo "Updating service(s)"
-        installService $1 "$serviceDst" "$2"
-        fi
-    else
-      echo "Installing new service(s)"
-      installService $1 "$serviceDst" "$2"
-    fi
-    echo "Writing $1 to db"
-    serviceDB["$serviceDst"]+="$2"
-  }
+    echo "Initializing service"
+    initialize $1 $serviceDst $2 "installService" serviceDB serializedServiceDB 
+    }
 
   cleanup serializedFileDB filesTBI "removeFile"
   cleanup serializedFontDB fontsTBI "removeFont"
