@@ -5,7 +5,7 @@ self: super: {
     let
       lpkgs = import ../all-packages.nix;
       zsh = import lpkgs.zsh {};
-      neovim = import lpkgs.neovim {};
+      emacs = import lpkgs.emacs {};
       direnv = import lpkgs.direnv {};
       git = import lpkgs.git {};
       xsession = import lpkgs.xsession {
@@ -14,22 +14,20 @@ self: super: {
       mpd = import lpkgs.mpd {music_directory = "~/OneDrive/Music";};
       alacritty = import lpkgs.alacritty {};
       onedrive = import lpkgs.onedrive {};
-      # files =  zsh.files // neovim.files // direnv.files // git.files // xsession.files // mpd.files // alacritty.files // onedrive.files; 
-      files =  zsh.files // neovim.files // direnv.files // git.files // xsession.files // mpd.files // alacritty.files // onedrive.files; 
-      services = zsh.services // neovim.services // direnv.services // git.services // xsession.services // mpd.services // alacritty.services // onedrive.services;  
-      fonts = zsh.fonts // neovim.fonts // direnv.fonts // git.fonts // xsession.fonts // mpd.fonts // alacritty.fonts // onedrive.fonts; 
+      files =  zsh.files // emacs.files // direnv.files // git.files // xsession.files // mpd.files // alacritty.files // onedrive.files; 
+      services = zsh.services // emacs.services // direnv.services // git.services // xsession.services // mpd.services // alacritty.services // onedrive.services;  
+      fonts = zsh.fonts // emacs.fonts // direnv.fonts // git.fonts // xsession.fonts // mpd.fonts // alacritty.fonts // onedrive.fonts; 
       homenid = import lpkgs.homenid {nixpkgs = pkgs.pkgs; inherit files services fonts;};
     in
       [
         zsh.env
-        neovim.env
+        emacs.env
         direnv.env
         git.env
         xsession.env
         mpd.env
         alacritty.env
         onedrive.env
-        neovim-qt
         tmux
         zip
         unzip

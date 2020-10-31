@@ -1,0 +1,14 @@
+"Spell-Check
+
+" Spell-check Markdown files and Git Commit Messages
+autocmd FileType markdown setlocal spell
+autocmd FileType gitcommit setlocal spell
+
+" Enable dictionary auto-completion in Markdown files and Git Commit Messages
+autocmd FileType markdown setlocal complete+=kspell
+autocmd FileType gitcommit setlocal complete+=kspell
+
+" Normal Mappings
+nnoremap <silent> <leader>f :Neoformat<cr>
+
+autocmd FileType cpp :packadd vim-lsp-cxx-highlight

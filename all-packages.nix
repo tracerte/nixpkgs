@@ -3,6 +3,7 @@ with import <nixpkgs>;
   alacritty = ./alacritty;
   direnv = ./direnv;
   dunst = ./dunst;
+  emacs = ./emacs;
   feh = ./feh;
   git = ./git;
   homenid = fetchTarball {
