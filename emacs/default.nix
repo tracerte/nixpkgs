@@ -20,6 +20,7 @@ with nixpkgs;
       pandoc
       nixfmt
       shellcheck
+      multimarkdown
     ];
   };
   files = {};

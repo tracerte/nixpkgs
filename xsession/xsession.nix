@@ -11,5 +11,5 @@ writeScript "xsession" ''
   ${picom}/bin/picom &
   ${monitorScript}/bin/monitorAssignment &
   ${fehScript}/bin/fehbg &
-  exec ${i3}/bin/i3
+  exec emacs
 ''
